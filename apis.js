@@ -19,7 +19,7 @@ var writeFile = function (fileName) {
     });
 };
 //------------------------------------*
-//截字串------------------------------------
+//截網址參數------------------------------------
 function getParameterByUrl(url, regx) {
     url = url.split("?")[1].split("&")
     for (var i = 0; i < url.length; i++) {
@@ -92,9 +92,9 @@ async function pageFrom_txt(page, url, writeStream) {
     await page.goto(url)
     try {
         var linkNum = await page.evaluate(() => {
-            linkNum = document.myclass.querySelectorAll(".ptxt > a").length
-            const dom = document.myclass.querySelectorAll(".ptxt > a")[0]
-            console.log(dom)
+            // linkNum = document.myclass.querySelectorAll(".ptxt > a").length
+            // const dom = document.myclass.querySelectorAll(".ptxt > a")[0]
+            linkNum = document.myclass.querySelectorAll("form > table tr :nth-of-type(2) td table tr td a").length
             return linkNum
         })
     } catch (e) {
@@ -105,14 +105,21 @@ async function pageFrom_txt(page, url, writeStream) {
     writeStream.write(url)
     return linkNum
 }
-//----------------------*
-//search---------------------------------------
-async function search(browser, url, linkNum, page, writeStream,file_html,changedSerial) {
+//------------------------------------------------------------------*
+//search(課程業取得機構代碼課程代碼並到教育網查詢serial)奇中一筆發生錯誤就不會修改頁面--------------------------------------
+async function search(browser, url, linkNum, page, writeStream, file_html, changedSerial) {
     console.log(`${url}\n有${linkNum}筆...`)
-    
+
     for (var i = 1; i <= linkNum; i++) {
         console.log(`第${i}筆查尋開始...`)
-        await page.click(`.cls:nth-child(${i}) > .ptxt > a`)
+        try {
+            await page.evaluate((i) => {
+                document.querySelectorAll('form > table tr :nth-of-type(2) td table tr td a')[i - 1].onclick()
+            },i)
+        } catch (e) {
+            console.log(e)
+        }
+        //await page.click(`.cls:nth-child(${i}) > .ptxt > a`)
         var newPage = await listenPage(browser, "targetcreated")
         try {
             await newPage.waitForSelector('#btnSave')
@@ -120,7 +127,6 @@ async function search(browser, url, linkNum, page, writeStream,file_html,changed
             console.log(`課程業在第${i}筆錯誤!`)
             return false
         }
-
         var url_becut = await newPage.url()
         var pageTitle = await newPage.title()
         await newPage.close()
@@ -142,14 +148,16 @@ async function search(browser, url, linkNum, page, writeStream,file_html,changed
         })
         await searchPage.close()
         inputWriteStream(writeStream, pageTitle, url_becut, classCode, schoolCode, serial)
-        console.log(`被換的${changedSerial[i-1]}換人的${serial}`)
-        file_html=file_html.replace(changedSerial[i-1],serial)
+        file_html = file_html.replace(changedSerial[i - 1], `${i-1}-${changedSerial[i - 1]}`)//將要替換的serial加上編碼
+        file_html = file_html.replace(`${i-1}-${changedSerial[i - 1]}`, serial)
+        console.log(`被換掉的${i-1}-${changedSerial[i - 1]}換成的${serial}`)
+        console.log(`第${i}筆結束`)
 
     }
     return file_html
 }
-//---------------------------------------------------
-//取得設定---------------------------------
+//----------------------------------------------------------------------------------------------------------------------*
+//取得search.txt的設定---------------------------------
 async function getConfig(txt) {
     var f1 = await readFile(txt);
     var url_arr = f1.toString().match(/^\[.+\]$/gim).map(function (v) {
@@ -161,15 +169,15 @@ async function getConfig(txt) {
     return [url_arr, id_arr]
 }
 //--------------------------------------
-//取得替換的value-----
-function getSerial(str){
-    var serial_arr = str.match(/value="\d{5,10}"/gi).map(function(val){
+//取得要被替換的value(為了做repalce)------
+function getSerial(str) {
+    var serial_arr = str.match(/value="\d{5,10}"/gi).map(function (val) {
         return val.match(/\d{5,10}/gi)
     })
 
     return serial_arr
 }
-//------------------------*
+//---------------------------------------*
 module.exports = {
     getConfig,
     search,

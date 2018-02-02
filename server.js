@@ -14,7 +14,7 @@ var xbrowser = async function () {
     var url_arr = config[0]
     var Id = config[1][0]
     var Pwd = config[1][1]
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({ headless: true });//若要看瀏覽器操作步驟headless : false 反之 true
     var learn104Page = await browser.newPage()
     //登入教育網-------------------------
     apis.signInLearn(browser, learn104Page, Id, Pwd)
@@ -25,7 +25,14 @@ var xbrowser = async function () {
     for (var index in url_arr) {
         var linkNum = 0
         var url = url_arr[index]
-        var html_path = url.slice(url.length - 6, url.length)
+        var html_path =url.match(/[\d\w]{1,15}\.html{0,1}/gi)
+        if(html_path==null||html_path.length!=1){
+            console.log("檔案搜索錯誤!")
+            break
+        }else{
+            html_path = html_path[0]
+            console.log(`${html_path}檔案搜索成功!`)
+        }
         //一次處理兩個promise----------------------------------
         var results_promise = await Promise.all([
             apis.readFile(html_path),
