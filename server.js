@@ -10,10 +10,18 @@ var xbrowser = async function () {
         fd: 'null',
         autoClose: true,
     })
+    var offline = fs.createWriteStream("offline.txt", {
+        flags: 'w',
+        encoding: "utf8",
+        fd: 'null',
+        autoClose: true,
+    })
+    var writeStream_arr = [writeStream,offline]
     var config = await apis.getConfig("search.txt")
     var url_arr = config[0]
     var Id = config[1][0]
     var Pwd = config[1][1]
+    var class_selector = config[2][0]
     const browser = await puppeteer.launch({ headless: true });//若要看瀏覽器操作步驟headless : false 反之 true
     var learn104Page = await browser.newPage()
     //登入教育網-------------------------
@@ -36,7 +44,7 @@ var xbrowser = async function () {
         //一次處理兩個promise----------------------------------
         var results_promise = await Promise.all([
             apis.readFile(html_path),
-            apis.pageFrom_txt(page, url, writeStream)
+            apis.pageFrom_txt(page, url, writeStream_arr,class_selector)
         ]).then(function (results) {
             return [results[0].toString(), results[1]]
         })
@@ -51,7 +59,7 @@ var xbrowser = async function () {
             console.log(linkNum)
             console.log(`${html_path}檔與${url}取得筆數不同!`)
         } else {
-            var html_done = await apis.search(browser, url, linkNum, page, writeStream, file_html, changedSerial)
+            var html_done = await apis.search(browser, url, linkNum, page, writeStream_arr, file_html, changedSerial,class_selector)
 
         }
         if (!html_done) {
@@ -72,7 +80,7 @@ var xbrowser = async function () {
     }
     browser.close()
     writeStream.end()
-
+    offline.end()
 }
 xbrowser()
 

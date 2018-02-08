@@ -1,5 +1,7 @@
 node_modules
 npm-debug.log
 result.txt
+offline.txt
 *.htm
 *.html
+*.zip

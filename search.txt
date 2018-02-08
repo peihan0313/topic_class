@@ -3,5 +3,6 @@
 [https://learn.104.com.tw/events/201801class/p3.htm]
 [https://learn.104.com.tw/events/201801class/p4.htm]
 [https://learn.104.com.tw/events/201801class/p5.htm]
+(.ptxt > a)
 {id:ad}
 {pw:password}
