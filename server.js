@@ -48,6 +48,7 @@ var xbrowser = async function () {
         var changedSerial = apis.getSerial(file_html)
         if (linkNum !== changedSerial.length) {
             console.log(changedSerial)
+            console.log(linkNum)
             console.log(`${html_path}檔與${url}取得筆數不同!`)
         } else {
             var html_done = await apis.search(browser, url, linkNum, page, writeStream, file_html, changedSerial)

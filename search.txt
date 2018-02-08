@@ -1,3 +1,7 @@
-[https://learn.104.com.tw/18exp/18_0206_af.htm]
+[https://learn.104.com.tw/events/201801class/p1.htm]
+[https://learn.104.com.tw/events/201801class/p2.htm]
+[https://learn.104.com.tw/events/201801class/p3.htm]
+[https://learn.104.com.tw/events/201801class/p4.htm]
+[https://learn.104.com.tw/events/201801class/p5.htm]
 {id:ad}
 {pw:password}
